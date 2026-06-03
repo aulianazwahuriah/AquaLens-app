@@ -1,4 +1,4 @@
-# 🐟 AquaLens — Klasifikasi Jenis Ikan Konsumsi
+# 🐟 AquaLens - Klasifikasi Jenis Ikan Konsumsi
 
 **AquaLens** adalah aplikasi web berbasis Flask yang mengklasifikasikan 8 spesies ikan konsumsi pasar tradisional menggunakan algoritma **Random Forest** dengan ekstraksi fitur warna (RGB + HSV). Model dilatih dari dataset Fish-gres (ITS Surabaya, Mendeley Data, DOI: 10.17632/76cr3wfhff.1).
 
@@ -17,12 +17,12 @@ https://aqualens.my.id   ← setelah domain dikonfigurasi
 
 ## ✨ Fitur Aplikasi
 
-- **Klasifikasi real-time** — upload foto ikan, hasil prediksi muncul instan beserta confidence score dan distribusi probabilitas tiap kelas.
-- **Dashboard ringkasan** — statistik dataset, akurasi model, dan distribusi spesies.
-- **Halaman Evaluasi** — confusion matrix, classification report, feature importance.
-- **Halaman Dataset** — informasi sumber data, pembagian train/test, dan distribusi gambar per spesies.
-- **Halaman Tentang** — penjelasan metodologi dan deskripsi tiap spesies.
-- **Responsif** — tampilannya menyesuaikan layar HP dan desktop.
+- **Klasifikasi real-time** - upload foto ikan, hasil prediksi muncul instan beserta confidence score dan distribusi probabilitas tiap kelas.
+- **Dashboard ringkasan** - statistik dataset, akurasi model, dan distribusi spesies.
+- **Halaman Evaluasi** - confusion matrix, classification report, feature importance.
+- **Halaman Dataset** - informasi sumber data, pembagian train/test, dan distribusi gambar per spesies.
+- **Halaman Tentang** - penjelasan metodologi dan deskripsi tiap spesies.
+- **Responsif** - tampilannya menyesuaikan layar HP dan desktop.
 
 ---
 
