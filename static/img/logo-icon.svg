@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none">
+  <!-- Background square rounded -->
+  <rect width="36" height="36" rx="9" fill="#5B5BFF"/>
+  <!-- Outer lens circle -->
+  <circle cx="18" cy="16" r="9" stroke="white" stroke-width="1.8" stroke-opacity="0.5"/>
+  <!-- Inner lens circle -->
+  <circle cx="18" cy="16" r="5.5" stroke="white" stroke-width="1.8"/>
+  <!-- Center dot -->
+  <circle cx="18" cy="16" r="2" fill="white"/>
+  <!-- Lens handle/stem -->
+  <line x1="24.5" y1="22.5" x2="28" y2="26" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <!-- Water wave at bottom -->
+  <path d="M8 29 Q11 27 14 29 Q17 31 20 29 Q23 27 26 29" stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" stroke-opacity="0.7"/>
+</svg>

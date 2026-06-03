@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+{% block title %}Identifikasi Ikan{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('dashboard') }}" class="text-muted">Dashboard</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-current">Identifikasi Ikan</span>
+{% endblock %}
+
+{% block content %}
+
+{# ============================================================
+   VIEW A: Form Upload + Panduan Foto
+============================================================ #}
+<div id="viewUpload">
+  <div class="page-header">
+    <h1 class="page-title">Identifikasi Ikan</h1>
+    <p class="page-subtitle">Unggah foto ikan untuk mendapatkan identifikasi otomatis menggunakan Random Forest</p>
+  </div>
+
+  <div class="row g-4">
+
+    {# Kolom Kiri: Upload #}
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="bi bi-upload"></i> Upload Foto Ikan
+          </div>
+        </div>
+        <div class="card-body">
+
+          {# Drop zone #}
+          <div id="uploadZone" class="upload-zone" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon"><i class="bi bi-camera-fill" style="font-size:26px;color:var(--primary);"></i></div>
+            <div class="upload-title">Seret dan lepas foto di sini</div>
+            <div class="upload-subtitle">atau klik untuk memilih file</div>
+            <span class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-folder2-open"></i> Pilih File
+            </span>
+            <div class="upload-meta mt-2">Format: JPG, PNG, WebP, TIF &nbsp;|&nbsp; Maks: 5 MB</div>
+          </div>
+
+          {# Info file setelah dipilih (tanpa render gambar) #}
+          <div id="previewSection" class="d-none mt-3">
+            <div class="d-flex align-items-center gap-3 p-3 rounded"
+                 style="background:var(--bg);border:1px solid var(--border);">
+              <div style="width:48px;height:48px;background:var(--primary-light);border-radius:var(--radius-sm);
+                          display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-file-earmark-image" style="font-size:22px;color:var(--primary);"></i>
+              </div>
+              <div class="flex-grow-1 overflow-hidden">
+                <div id="previewFilename" class="fw-600 text-truncate" style="font-size:13px;"></div>
+                <div id="previewSize" class="text-muted" style="font-size:12px;"></div>
+                <div class="text-muted" style="font-size:11.5px;margin-top:2px;">
+                  <i class="bi bi-info-circle"></i>
+                  Preview tidak tersedia. Gambar dapat dilihat setelah dianalisis.
+                </div>
+              </div>
+              <button class="preview-clear flex-shrink-0" id="clearBtn" title="Hapus file">
+                <i class="bi bi-x"></i>
+              </button>
+            </div>
+          </div>
+
+          <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.webp,.tif,.tiff" class="d-none"/>
+
+          <div class="mt-3">
+            <button id="identifyBtn" class="btn btn-primary w-100" disabled>
+              <i class="bi bi-camera-fill me-2"></i> Identifikasi Sekarang
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {# Kolom Kanan: Panduan #}
+    <div class="col-12 col-md-6">
+      <div class="card h-100">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-lightbulb-fill"></i> Panduan Foto</div>
+        </div>
+        <div class="card-body">
+          <div class="guide-list mb-3">
+            <div class="guide-item">
+              <div class="guide-dot ok"><i class="bi bi-check" style="font-size:10px;"></i></div>
+              <div class="guide-text"><strong>Foto yang Jelas</strong> - Seluruh tubuh ikan terlihat dan tidak buram</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-dot ok"><i class="bi bi-check" style="font-size:10px;"></i></div>
+              <div class="guide-text"><strong>Pencahayaan Cukup</strong> - Hindari foto terlalu gelap atau cahaya berlebih</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-dot ok"><i class="bi bi-check" style="font-size:10px;"></i></div>
+              <div class="guide-text"><strong>Satu Ikan per Foto</strong> - Identifikasi paling akurat dengan satu objek ikan</div>
+            </div>
+            <div class="guide-item">
+              <div class="guide-dot bad"><i class="bi bi-x" style="font-size:10px;"></i></div>
+              <div class="guide-text"><strong>Hindari Latar Ramai</strong> - Latar yang ramai dapat memengaruhi akurasi warna</div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <p class="fw-600 mb-2" style="font-size:12px;color:var(--text-muted-c);">8 Kelas yang Dikenali</p>
+          <div class="species-badges mb-3">
+            {% for ikan in label_ikan %}
+            <span class="badge-muted">{{ ikan.nama }}</span>
+            {% endfor %}
+          </div>
+          <p style="font-size:11px;color:var(--text-muted-c);">
+            Dilatih dari dataset Fish-gres, Pasar Tradisional Gresik, Jawa Timur.
+            Institut Teknologi Sepuluh Nopember (ITS) Surabaya, 2021.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>{# /viewUpload #}
+
+
+{# ============================================================
+   VIEW B: Hasil Identifikasi
+   Kiri: Foto dianalisis + Fitur + Probabilitas
+   Kanan: Hasil utama + Fakta Menarik
+============================================================ #}
+<div id="viewResult" class="d-none">
+
+  <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3">
+    <div>
+      <h1 class="page-title">Hasil Identifikasi</h1>
+      <p class="page-subtitle">Dashboard / Identifikasi / Hasil</p>
+    </div>
+    <button id="identifyAgainBtn" class="btn btn-primary">
+      <i class="bi bi-arrow-counterclockwise me-2"></i> Identifikasi Lagi
+    </button>
+  </div>
+
+  <div class="row g-4">
+
+    {# Kolom Kiri #}
+    <div class="col-12 col-md-6 d-flex flex-column gap-4">
+
+      {# Foto yang Dianalisis #}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-image-fill"></i> Foto yang Dianalisis</div>
+        </div>
+        <div class="card-body pt-3">
+          <div style="border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border);background:var(--bg);">
+            <img id="resultImg" src="" alt="Foto yang dianalisis"
+                 style="width:100%;max-height:300px;object-fit:contain;display:block;background:#f5f6fa;"/>
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-2" style="font-size:12px;color:var(--text-muted-c);">
+            <i class="bi bi-file-image"></i>
+            <span id="resultFilename"></span>
+            <span id="resultFilesize" class="ms-auto"></span>
+          </div>
+        </div>
+      </div>
+
+      {# 6 Fitur Warna #}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-sliders"></i> 6 Fitur yang Diekstrak</div>
+        </div>
+        <div class="card-body">
+          <div class="feature-grid" id="featureGrid"></div>
+          <div class="chart-caption mt-3">
+            Fitur warna diekstrak dari rata-rata nilai piksel pada ruang warna
+            <strong>RGB</strong> (Red, Green, Blue) dan <strong>HSV</strong>
+            (Hue, Saturation, Value). Keenam nilai ini menjadi input langsung ke
+            setiap pohon keputusan dalam Random Forest.
+          </div>
+        </div>
+      </div>
+
+      {# Probabilitas per Kelas #}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-bar-chart-fill"></i> Probabilitas per Kelas</div>
+        </div>
+        <div class="card-body">
+          <div class="prob-list" id="probList"></div>
+          <div class="chart-caption mt-3">
+            Nilai probabilitas diperoleh dari <strong>voting mayoritas 100 pohon keputusan</strong>.
+            Setiap pohon memberikan satu suara; kelas dengan suara terbanyak menjadi prediksi akhir.
+          </div>
+        </div>
+      </div>
+
+    </div>{# /kolom kiri #}
+
+    {# Kolom Kanan #}
+    <div class="col-12 col-md-6 d-flex flex-column gap-4">
+
+      {# Hasil Identifikasi #}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <i class="bi bi-check-circle-fill" style="color:var(--success-color);"></i>
+            Hasil Identifikasi
+          </div>
+          <span class="badge-muted">Random Forest - 100 Pohon</span>
+        </div>
+        <div class="card-body">
+
+          <div class="result-header">
+            <div class="result-fish-icon" id="resultEmoji">🐠</div>
+            <div>
+              <div class="result-label">Jenis Ikan Teridentifikasi</div>
+              <div class="result-name"  id="resultName"></div>
+              <div class="result-latin" id="resultLatin"></div>
+            </div>
+          </div>
+
+          <div class="confidence-wrap mb-3">
+            <div class="confidence-label">
+              <span><i class="bi bi-speedometer2"></i> Tingkat Keyakinan</span>
+              <span class="confidence-pct" id="confidencePct">0%</span>
+            </div>
+            <div class="progress-bar-c">
+              <div class="progress-fill" id="confidenceBar"></div>
+            </div>
+          </div>
+
+          <div class="info-tags mb-3">
+            <div class="info-tag">
+              <div class="info-tag-icon"><i class="bi bi-water"></i></div>
+              <div class="info-tag-label">Habitat</div>
+              <div class="info-tag-value" id="resultHabitat"></div>
+            </div>
+            <div class="info-tag">
+              <div class="info-tag-icon"><i class="bi bi-eye-fill"></i></div>
+              <div class="info-tag-label">Ciri Fisik</div>
+              <div class="info-tag-value" id="resultCiri"></div>
+            </div>
+            <div class="info-tag">
+              <div class="info-tag-icon"><i class="bi bi-heart-fill"></i></div>
+              <div class="info-tag-label">Nilai Gizi</div>
+              <div class="info-tag-value" id="resultGizi"></div>
+            </div>
+          </div>
+
+          <div class="mb-3 p-3 rounded" style="background:var(--primary-light);border-left:3px solid var(--primary);">
+            <div class="mb-2" style="font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.5px;">
+              <i class="bi bi-info-circle-fill"></i> Deskripsi
+            </div>
+            <div id="resultDeskripsi" style="font-size:13px;color:var(--text-secondary);line-height:1.7;"></div>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button id="identifyAgainBtn2" class="btn btn-primary flex-fill">
+              <i class="bi bi-camera-fill me-2"></i> Identifikasi Lagi
+            </button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary flex-fill">
+              <i class="bi bi-grid-fill me-2"></i> Dashboard
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      {# Fakta Menarik (poin teks, tanpa gambar/ikon ikan) #}
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><i class="bi bi-journal-text"></i> Fakta Menarik</div>
+        </div>
+        <div class="card-body">
+          <div id="habitatPanel">
+            <p class="text-muted" style="font-size:13px;">Menunggu hasil identifikasi...</p>
+          </div>
+        </div>
+      </div>
+
+    </div>{# /kolom kanan #}
+  </div>
+</div>{# /viewResult #}
+
+{% endblock %}

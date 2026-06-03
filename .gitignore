@@ -1,0 +1,7 @@
+dataset/
+venv/
+__pycache__/
+*.pyc
+static/img/uploads/
+.env
+.DS_Store

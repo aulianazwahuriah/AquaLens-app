@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}Dataset{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('dashboard') }}" class="text-muted">Dashboard</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-current">Dataset</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Dataset</h1>
+  <p class="page-subtitle">Informasi dataset Fish-gres yang digunakan untuk pelatihan model</p>
+</div>
+
+{# Stat Cards #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="bi bi-images" style="font-size:22px;color:var(--primary);"></i></div>
+      <div><div class="stat-value">{{ eval_data.jumlah_latih + eval_data.jumlah_uji }}</div><div class="stat-label">Total Gambar</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="bi bi-fish" style="font-size:22px;color:var(--success-color);"></i></div>
+      <div><div class="stat-value">8</div><div class="stat-label">Spesies Ikan</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon orange"><i class="bi bi-calendar-fill" style="font-size:22px;color:var(--warning-color);"></i></div>
+      <div><div class="stat-value">2021</div><div class="stat-label">Tahun Pengambilan</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="bi bi-building-fill" style="font-size:22px;color:#8B5CF6;"></i></div>
+      <div><div class="stat-value">ITS</div><div class="stat-label">Sumber Institusi</div></div>
+    </div>
+  </div>
+</div>
+
+{# Info Dataset + Charts #}
+<div class="row g-4 mb-4">
+
+  {# Informasi Dataset #}
+  <div class="col-12 col-lg-5">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-database-fill"></i> Informasi Dataset</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-2">
+          {% set meta = [
+            ('Nama Dataset',           'Fish-gres Dataset'),
+            ('Institusi',              'Institut Teknologi Sepuluh Nopember (ITS), Surabaya'),
+            ('Lokasi Pengambilan',     'Pasar Tradisional Gresik, Jawa Timur'),
+            ('Platform Publikasi',     'Mendeley Data'),
+            ('Resolusi Gambar',        '224 x 224 piksel (setelah resize)'),
+            ('Format File',            'JPG, JPEG, PNG, WebP, TIF')
+          ] %}
+          {% for key, val in meta %}
+          <div class="px-3 py-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+            <div style="font-size:10.5px;font-weight:600;color:var(--text-muted-c);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">{{ key }}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text-primary);">{{ val }}</div>
+          </div>
+          {% endfor %}
+          <div class="px-3 py-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+            <div style="font-size:10.5px;font-weight:600;color:var(--text-muted-c);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">DOI / Tautan</div>
+            <a href="https://data.mendeley.com/datasets/76cr3wfhff/1" target="_blank"
+               style="font-size:13px;color:var(--primary);font-weight:600;">
+              data.mendeley.com/datasets/76cr3wfhff/1
+              <i class="bi bi-box-arrow-up-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Charts #}
+  <div class="col-12 col-lg-7 d-flex flex-column gap-4">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-pie-chart-fill"></i> Pembagian Data Latih dan Uji</div>
+      </div>
+      <div class="card-body">
+        <div id="splitChart" style="min-height:220px;"></div>
+        <div class="chart-caption">
+          Dataset dibagi <strong>80% untuk pelatihan</strong> dan <strong>20% untuk pengujian</strong>
+          menggunakan metode stratified split, memastikan setiap kelas terwakili secara proporsional
+          di kedua subset sehingga evaluasi lebih representatif.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-bar-chart-fill"></i> Distribusi per Spesies</div>
+      </div>
+      <div class="card-body">
+        <div id="classDistChart" style="min-height:240px;"></div>
+        <div class="chart-caption">
+          Jumlah gambar per spesies dalam dataset. Distribusi yang merata antar kelas
+          membantu model belajar secara adil sehingga tidak bias terhadap spesies tertentu.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# Tabel Spesies #}
+<div class="card">
+  <div class="card-header">
+    <div class="card-title"><i class="bi bi-fish"></i> Daftar Spesies dalam Dataset</div>
+  </div>
+  <div class="card-body-flush">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Spesies</th>
+          <th>Nama Latin</th>
+          <th>Habitat Utama</th>
+          <th>Jumlah Gambar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ikan in label_ikan %}
+        <tr>
+          <td style="font-weight:700;color:var(--text-muted-c);font-size:13px;">{{ loop.index }}</td>
+          <td style="font-weight:700;font-size:13px;">{{ ikan.nama }}</td>
+          <td style="font-style:italic;color:var(--text-secondary);font-size:12.5px;">{{ ikan.latin }}</td>
+          <td style="font-size:12.5px;color:var(--text-secondary);">{{ ikan.habitat }}</td>
+          <td>
+            <span class="badge-primary">{{ eval_data.jumlah_per_kelas.get(ikan.nama, '?') }} foto</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * Grafik Dataset: donut split + bar distribusi per spesies.
+ * Dibungkus window 'load' agar DOM dan ApexCharts siap sebelum render.
+ */
+window.addEventListener('load', function () {
+
+  /* Donut: pembagian data latih vs uji */
+  var splitEl = document.getElementById('splitChart');
+  if (splitEl) {
+    new ApexCharts(splitEl, {
+      chart: { type: 'donut', height: 220, fontFamily: "'Plus Jakarta Sans', sans-serif", animations: { enabled: true, speed: 600 } },
+      series: [{{ eval_data.jumlah_latih }}, {{ eval_data.jumlah_uji }}],
+      labels: ['Data Latih (80%)', 'Data Uji (20%)'],
+      colors: ['#5B5BFF', '#00D4AA'],
+      legend: { position: 'bottom', fontSize: '12px' },
+      plotOptions: { pie: { donut: { size: '65%' } } },
+      dataLabels: { formatter: function (v) { return v.toFixed(1) + '%'; } },
+      tooltip: { y: { formatter: function (v) { return v + ' sampel'; } } }
+    }).render();
+  }
+
+  /* Bar: distribusi jumlah gambar per spesies */
+  var distEl    = document.getElementById('classDistChart');
+  var classNames = {{ eval_data.nama_kelas | tojson }};
+  var classData  = {{ eval_data.jumlah_per_kelas | tojson }};
+  var classVals  = classNames.map(function (n) { return classData[n] || 0; });
+
+  if (distEl) {
+    new ApexCharts(distEl, {
+      chart: { type: 'bar', height: 240, toolbar: { show: false }, fontFamily: "'Plus Jakarta Sans', sans-serif", animations: { enabled: true, speed: 600 } },
+      series: [{ name: 'Jumlah Gambar', data: classVals }],
+      xaxis: { categories: classNames, labels: { rotate: -30, style: { fontSize: '11px' } } },
+      colors: ['#5B5BFF'],
+      plotOptions: { bar: { horizontal: false, columnWidth: '60%', borderRadius: 5 } },
+      dataLabels: { enabled: true, style: { fontSize: '10px', colors: ['#fff'] } },
+      grid: { borderColor: '#E5E7EB', strokeDashArray: 4 }
+    }).render();
+  }
+
+});
+</script>
+{% endblock %}

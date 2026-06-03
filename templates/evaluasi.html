@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% block title %}Evaluasi Model{% endblock %}
+
+{% block breadcrumb %}
+<a href="{{ url_for('dashboard') }}" class="text-muted">Dashboard</a>
+<span class="breadcrumb-sep">/</span>
+<span class="breadcrumb-current">Evaluasi Model</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Evaluasi Model</h1>
+  <p class="page-subtitle">Analisis performa klasifikasi Random Forest pada 8 spesies ikan</p>
+</div>
+
+{# Stat Cards #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="bi bi-check-circle-fill" style="font-size:22px;color:var(--success-color);"></i></div>
+      <div><div class="stat-value">{{ eval_data.akurasi }}%</div><div class="stat-label">Akurasi Keseluruhan</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="bi bi-images" style="font-size:22px;color:var(--primary);"></i></div>
+      <div><div class="stat-value">{{ eval_data.jumlah_latih }}</div><div class="stat-label">Sampel Latih</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon orange"><i class="bi bi-clipboard2-data-fill" style="font-size:22px;color:var(--warning-color);"></i></div>
+      <div><div class="stat-value">{{ eval_data.jumlah_uji }}</div><div class="stat-label">Sampel Uji</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="bi bi-diagram-3-fill" style="font-size:22px;color:#8B5CF6;"></i></div>
+      <div><div class="stat-value">100</div><div class="stat-label">Pohon Keputusan</div></div>
+    </div>
+  </div>
+</div>
+
+{# Feature Importance + Confusion Matrix #}
+<div class="row g-4 mb-4">
+
+  <div class="col-12 col-lg-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-bar-chart-steps"></i> Feature Importance</div>
+      </div>
+      <div class="card-body">
+        <div id="featureImportanceChart" style="min-height:280px;"></div>
+        <div class="chart-caption">
+          <strong>Feature Importance</strong> menunjukkan seberapa besar kontribusi
+          setiap fitur dalam keputusan klasifikasi. Nilai lebih tinggi berarti fitur
+          lebih sering menjadi pemisah di tiap pohon. <em>Mean R</em> dan <em>Mean G</em>
+          cenderung dominan karena perbedaan warna ikan paling terlihat di kanal merah dan hijau.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-table"></i> Confusion Matrix</div>
+      </div>
+      <div class="card-body">
+        <div class="cm-wrap">
+          <table class="cm-table">
+            <thead>
+              <tr>
+                <th></th>
+                {% for kelas in eval_data.nama_kelas %}
+                <th title="{{ kelas }}">{{ kelas[:3] }}.</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for i, row in eval_data.confusion_matrix|enumerate %}
+              <tr>
+                <th style="text-align:left;white-space:nowrap;font-size:11px;">{{ eval_data.nama_kelas[i] }}</th>
+                {% for j, val in row|enumerate %}
+                <td class="cm-cell {% if i == j %}is-diag{% endif %}">{{ val }}</td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="chart-caption mt-3">
+          Baris = kelas <em>sebenarnya</em>, Kolom = kelas <em>prediksi</em>.
+          Nilai pada <strong>diagonal biru</strong> adalah prediksi benar (True Positive).
+          Nilai di luar diagonal adalah kesalahan klasifikasi.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{# Laporan Klasifikasi #}
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="card-title"><i class="bi bi-clipboard2-check-fill"></i> Laporan Klasifikasi per Spesies</div>
+  </div>
+  <div class="card-body-flush">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Spesies</th>
+          <th>Precision</th>
+          <th>Recall</th>
+          <th>F1-Score</th>
+          <th>Support</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ikan in label_ikan %}
+        {% set rep = eval_data.classification_report[ikan.nama] %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-2">
+              <div style="width:28px;height:28px;border-radius:6px;
+                          background:var(--species-color-{{ loop.index }});
+                          display:flex;align-items:center;justify-content:center;
+                          flex-shrink:0;">
+                <span style="font-size:11px;font-weight:800;color:white;
+                             font-family:'Space Mono',monospace;">
+                  {{ "%02d" % loop.index }}
+                </span>
+              </div>
+              <div>
+                <div style="font-weight:600;font-size:13px;">{{ ikan.nama }}</div>
+                <div style="font-size:11px;color:var(--text-muted-c);font-style:italic;">{{ ikan.latin }}</div>
+              </div>
+            </div>
+          </td>
+          <td><span class="metric-badge {% if rep.precision >= 85 %}metric-high{% elif rep.precision >= 70 %}metric-medium{% else %}metric-low{% endif %}">{{ rep.precision }}%</span></td>
+          <td><span class="metric-badge {% if rep.recall >= 85 %}metric-high{% elif rep.recall >= 70 %}metric-medium{% else %}metric-low{% endif %}">{{ rep.recall }}%</span></td>
+          <td><span class="metric-badge {% if rep.f1_score >= 85 %}metric-high{% elif rep.f1_score >= 70 %}metric-medium{% else %}metric-low{% endif %}">{{ rep.f1_score }}%</span></td>
+          <td style="font-weight:700;font-family:'Space Mono',monospace;font-size:13px;">{{ rep.support }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{# Interpretasi Metrik #}
+<div class="card">
+  <div class="card-header">
+    <div class="card-title"><i class="bi bi-book-fill"></i> Interpretasi Metrik pada Tabel di Atas</div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-12 col-md-4">
+        <div class="p-3 rounded h-100" style="background:var(--bg);border:1px solid var(--border);">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="metric-badge metric-high">Precision</span>
+            <span style="font-size:11px;color:var(--text-muted-c);">hijau = &ge;85%</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
+            Dari semua prediksi spesies X, berapa persen yang benar-benar spesies X.
+            Precision tinggi berarti model jarang salah menyebut spesies lain sebagai spesies ini.
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="p-3 rounded h-100" style="background:var(--bg);border:1px solid var(--border);">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="metric-badge metric-medium">Recall</span>
+            <span style="font-size:11px;color:var(--text-muted-c);">kuning = &ge;70%</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
+            Dari semua gambar spesies X di data uji, berapa persen yang berhasil terdeteksi.
+            Recall tinggi berarti model jarang melewatkan spesies yang seharusnya terdeteksi.
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="p-3 rounded h-100" style="background:var(--bg);border:1px solid var(--border);">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <span class="metric-badge metric-low">F1-Score</span>
+            <span style="font-size:11px;color:var(--text-muted-c);">merah = &lt;70%</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">
+            Rata-rata harmonik Precision dan Recall. Metrik paling seimbang, terutama
+            saat distribusi jumlah sampel tidak merata antar spesies.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/**
+ * Grafik Feature Importance — ApexCharts
+ * Dibungkus window 'load' agar DOM dan library siap sebelum render.
+ */
+window.addEventListener('load', function () {
+  var importanceData = {{ eval_data.feature_importance | tojson }};
+  var featureLabels  = importanceData.nama_fitur;
+  var fullLabels     = {{ fitur_label | tojson }};
+  var featureValues  = importanceData.nilai.map(function (v) { return +(v * 100).toFixed(2); });
+
+  var chartEl = document.getElementById('featureImportanceChart');
+  if (!chartEl) return;
+
+  new ApexCharts(chartEl, {
+    chart: {
+      type: 'bar', height: 280,
+      toolbar: { show: false },
+      fontFamily: "'Plus Jakarta Sans', sans-serif",
+      animations: { enabled: true, speed: 600 }
+    },
+    series: [{ name: 'Importance (%)', data: featureValues }],
+    xaxis: { categories: featureLabels, labels: { style: { fontSize: '12px' } } },
+    yaxis: { labels: { formatter: function (v) { return v.toFixed(1) + '%'; } } },
+    colors: ['#5B5BFF'],
+    plotOptions: { bar: { horizontal: false, columnWidth: '52%', borderRadius: 6, borderRadiusApplication: 'end' } },
+    dataLabels: { enabled: true, formatter: function (v) { return v.toFixed(1) + '%'; }, style: { fontSize: '11px', colors: ['#fff'] } },
+    tooltip: {
+      custom: function (opts) {
+        var idx  = opts.dataPointIndex;
+        var full = fullLabels[featureLabels[idx]] || featureLabels[idx];
+        return '<div style="padding:8px 12px;font-size:12px;font-family:Plus Jakarta Sans,sans-serif;">' +
+          '<div style="font-weight:700;">' + full + '</div>' +
+          '<div style="color:#6B7280;">Importance: <b>' + featureValues[idx].toFixed(2) + '%</b></div></div>';
+      }
+    },
+    grid: { borderColor: '#E5E7EB', strokeDashArray: 4 }
+  }).render();
+});
+</script>
+{% endblock %}

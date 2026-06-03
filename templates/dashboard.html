@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block breadcrumb %}
+<span class="breadcrumb-current">Dashboard</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">Dashboard</h1>
+  <p class="page-subtitle">Ringkasan sistem identifikasi ikan konsumsi pasar tradisional</p>
+</div>
+
+{# ── Stat Cards ──────────────────────────────────────────── #}
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-xl">
+    <div class="stat-card">
+      <div class="stat-icon blue"><i class="bi bi-grid-3x3-gap-fill" style="font-size:22px;color:var(--primary);"></i></div>
+      <div><div class="stat-value">8</div><div class="stat-label">Kelas Ikan</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-xl">
+    <div class="stat-card">
+      <div class="stat-icon green"><i class="bi bi-check-circle-fill" style="font-size:22px;color:var(--success-color);"></i></div>
+      <div><div class="stat-value">{{ eval_data.akurasi }}%</div><div class="stat-label">Akurasi Model</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-xl">
+    <div class="stat-card">
+      <div class="stat-icon orange"><i class="bi bi-images" style="font-size:22px;color:var(--warning-color);"></i></div>
+      <div><div class="stat-value">{{ eval_data.jumlah_latih + eval_data.jumlah_uji }}</div><div class="stat-label">Total Data</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-xl">
+    <div class="stat-card">
+      <div class="stat-icon purple"><i class="bi bi-diagram-3-fill" style="font-size:22px;color:#8B5CF6;"></i></div>
+      <div><div class="stat-value">100</div><div class="stat-label">Jumlah Pohon RF</div></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-xl">
+    <div class="stat-card">
+      <div class="stat-icon teal"><i class="bi bi-sliders" style="font-size:22px;color:var(--accent);"></i></div>
+      <div><div class="stat-value">6</div><div class="stat-label">Fitur Warna</div></div>
+    </div>
+  </div>
+</div>
+
+{# ── Baris 1: 8 Spesies + Info Model + Dataset ─────────── #}
+<div class="row g-4 mb-4">
+
+  {# 8 Spesies #}
+  <div class="col-12 col-lg-7">
+    <div class="card h-100 d-flex flex-column">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-collection-fill"></i> 8 Spesies Ikan yang Dapat Diidentifikasi</div>
+        <a href="{{ url_for('klasifikasi') }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-camera-fill me-1"></i> Identifikasi Sekarang
+        </a>
+      </div>
+      <div class="card-body d-flex flex-column">
+        <div class="row g-2 mb-3">
+          {% for ikan in label_ikan %}
+          <div class="col-6">
+            <div class="fish-card">
+              <div class="fish-card-thumb"
+                   style="background:var(--species-color-{{ loop.index }});border-radius:var(--radius-sm);
+                          width:44px;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <span style="font-size:12px;font-weight:800;color:white;font-family:'Space Mono',monospace;">
+                  {{ "%02d" % loop.index }}
+                </span>
+              </div>
+              <div class="fish-card-info overflow-hidden">
+                <div class="fish-card-name text-truncate">{{ ikan.nama }}</div>
+                <div class="fish-card-latin text-truncate">{{ ikan.latin }}</div>
+                <div class="fish-card-habitat text-truncate">{{ ikan.habitat }}</div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        {# Alur Kerja Identifikasi — isi ruang bawah #}
+        <div class="mt-auto pt-2">
+          <div class="divider mb-3"></div>
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted-c);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;">
+            <i class="bi bi-arrow-right-circle-fill me-1" style="color:var(--primary);"></i> Alur Kerja Identifikasi
+          </div>
+          <div class="row g-2">
+            {% set steps = [
+              ('bi-upload',          '#5B5BFF', 'Upload Foto',       'JPG/PNG/WebP hingga 5 MB'),
+              ('bi-palette-fill',    '#00D4AA', 'Ekstraksi Fitur',   'Mean RGB dan HSV (6 nilai)'),
+              ('bi-diagram-3-fill',  '#FF9F43', 'Prediksi RF',       '100 pohon voting'),
+              ('bi-check-circle-fill','#0ABF8E','Hasil Identifikasi','Nama, habitat, gizi')
+            ] %}
+            {% for icon, color, title, desc in steps %}
+            <div class="col-6 col-md-3">
+              <div class="text-center p-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+                <div style="width:32px;height:32px;border-radius:50%;background:{{ color }}20;
+                            display:flex;align-items:center;justify-content:center;margin:0 auto 6px;">
+                  <i class="bi {{ icon }}" style="font-size:14px;color:{{ color }};"></i>
+                </div>
+                <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">{{ title }}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">{{ desc }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Kolom kanan: Info Model + Dataset #}
+  <div class="col-12 col-lg-5 d-flex flex-column gap-4">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-cpu-fill"></i> Informasi Model</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-2">
+          {% set model_info = [
+            ('Algoritma',    'Random Forest', 'badge-primary'),
+            ('Jumlah Pohon', '100 Estimators', ''),
+            ('Max Depth',    '10',             ''),
+            ('Fitur Input',  'RGB dan HSV (6 fitur)', ''),
+            ('Split Data',   '80% Latih / 20% Uji', '')
+          ] %}
+          {% for key, val, cls in model_info %}
+          <div class="d-flex justify-content-between align-items-center px-3 py-2 rounded"
+               style="background:var(--bg);">
+            <span style="font-size:13px;color:var(--text-secondary);">{{ key }}</span>
+            {% if cls %}<span class="{{ cls }}">{{ val }}</span>
+            {% else %}<span style="font-weight:700;font-size:13px;">{{ val }}</span>{% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title"><i class="bi bi-database-fill"></i> Sumber Dataset</div>
+      </div>
+      <div class="card-body">
+        <div class="alert-info-c mb-3">
+          <i class="bi bi-info-circle-fill me-2"></i>
+          Dataset <strong>Fish-gres</strong> dari ITS Surabaya, Mendeley Data, 2021.
+        </div>
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <div class="text-center p-2 rounded" style="background:var(--primary-light);">
+              <div style="font-size:20px;font-weight:800;color:var(--primary);">{{ eval_data.jumlah_latih }}</div>
+              <div style="font-size:11px;color:var(--primary);font-weight:600;">Data Latih (80%)</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="text-center p-2 rounded" style="background:var(--accent-light);">
+              <div style="font-size:20px;font-weight:800;color:#059669;">{{ eval_data.jumlah_uji }}</div>
+              <div style="font-size:11px;color:#059669;font-weight:600;">Data Uji (20%)</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex flex-column gap-2 mb-3">
+          {% set ds_meta = [
+            ('bi-geo-alt-fill',     'Lokasi',    'Pasar Tradisional Gresik, Jawa Timur'),
+            ('bi-aspect-ratio-fill','Resolusi',  '224 x 224 piksel (setelah resize)'),
+            ('bi-palette2',         'Fitur',     'Mean R, G, B, H, S, V per gambar')
+          ] %}
+          {% for icon, label, val in ds_meta %}
+          <div class="d-flex align-items-start gap-2 px-2 py-1 rounded"
+               style="background:var(--bg);font-size:12px;">
+            <i class="bi {{ icon }}" style="color:var(--primary);flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <span style="color:var(--text-muted-c);font-weight:600;">{{ label }}:</span>
+              <span style="color:var(--text-secondary);"> {{ val }}</span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <a href="https://data.mendeley.com/datasets/76cr3wfhff/1" target="_blank"
+           class="d-flex align-items-center gap-1 mb-3"
+           style="font-size:12.5px;color:var(--primary);font-weight:600;">
+          <i class="bi bi-box-arrow-up-right"></i> Lihat Dataset Asli - Mendeley Data
+        </a>
+        <div class="divider mb-2"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted-c);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+          Preprocessing Pipeline
+        </div>
+        <div class="d-flex flex-column gap-1">
+          {% for step in ['Load gambar via OpenCV','Resize ke 224 x 224 piksel',
+                          'Konversi BGR ke RGB dan HSV','Ekstraksi mean 6 kanal warna',
+                          'Normalisasi dan input ke RF'] %}
+          <div class="d-flex align-items-center gap-2" style="font-size:12px;color:var(--text-secondary);">
+            <i class="bi bi-arrow-right-circle" style="color:var(--primary);font-size:10px;flex-shrink:0;"></i>
+            {{ step }}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{# ── Baris 2: Keunggulan dan Keterbatasan RF ─────────────── #}
+<div class="row g-4">
+
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="bi bi-stars" style="color:#F59E0B;"></i> Keunggulan Random Forest
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-2">
+          {% set kelebihan = [
+            ('bi-check-circle-fill','#0ABF8E','Akurasi tinggi','Kombinasi banyak pohon menghasilkan prediksi lebih stabil dari satu pohon tunggal.'),
+            ('bi-check-circle-fill','#0ABF8E','Tahan overfitting','Pendekatan bagging dan pemilihan fitur acak mengurangi risiko overfitting.'),
+            ('bi-check-circle-fill','#0ABF8E','Feature importance','Dapat menentukan fitur mana yang paling berpengaruh dalam klasifikasi.'),
+            ('bi-check-circle-fill','#0ABF8E','Data non-linear','Bekerja baik pada pola data yang kompleks dan tidak linear.'),
+          ] %}
+          {% for icon, color, judul, desc in kelebihan %}
+          <div class="d-flex gap-3 p-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+            <i class="bi {{ icon }}" style="color:{{ color }};font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);">{{ judul }}</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">{{ desc }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-6">
+    <div class="card h-100">
+      <div class="card-header">
+        <div class="card-title">
+          <i class="bi bi-exclamation-triangle-fill" style="color:#EF4444;"></i> Keterbatasan Model
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-column gap-2">
+          {% set kekurangan = [
+            ('bi-x-circle-fill','#EF4444','Kompleksitas model','Terdiri dari banyak pohon sehingga sulit diinterpretasikan secara langsung.'),
+            ('bi-x-circle-fill','#EF4444','Fitur terbatas','Hanya menggunakan 6 fitur warna; tekstur dan bentuk ikan tidak dipertimbangkan.'),
+            ('bi-x-circle-fill','#EF4444','Sensitivitas pencahayaan','Nilai warna RGB/HSV dapat berubah signifikan tergantung kondisi cahaya foto.'),
+            ('bi-x-circle-fill','#EF4444','Spesies terbatas','Model hanya mengenali 8 spesies yang ada dalam dataset pelatihan.'),
+          ] %}
+          {% for icon, color, judul, desc in kekurangan %}
+          <div class="d-flex gap-3 p-2 rounded" style="background:var(--bg);border:1px solid var(--border);">
+            <i class="bi {{ icon }}" style="color:{{ color }};font-size:16px;flex-shrink:0;margin-top:2px;"></i>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text-primary);">{{ judul }}</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;">{{ desc }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

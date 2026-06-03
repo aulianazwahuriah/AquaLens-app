@@ -1,0 +1,175 @@
+{
+  "akurasi": 52.77,
+  "jumlah_latih": 2598,
+  "jumlah_uji": 650,
+  "jumlah_per_kelas": {
+    "Bandeng": 500,
+    "Senangin": 240,
+    "Gulamah": 240,
+    "Gulama Putih": 252,
+    "Nila Mozambik": 331,
+    "Nila": 564,
+    "Kembung": 544,
+    "Biji Nangka": 577
+  },
+  "confusion_matrix": [
+    [
+      63,
+      3,
+      5,
+      3,
+      3,
+      13,
+      4,
+      6
+    ],
+    [
+      6,
+      18,
+      15,
+      0,
+      0,
+      3,
+      2,
+      4
+    ],
+    [
+      6,
+      17,
+      22,
+      0,
+      0,
+      0,
+      3,
+      0
+    ],
+    [
+      5,
+      0,
+      0,
+      8,
+      4,
+      10,
+      18,
+      5
+    ],
+    [
+      4,
+      2,
+      0,
+      1,
+      36,
+      6,
+      7,
+      10
+    ],
+    [
+      5,
+      1,
+      1,
+      4,
+      7,
+      62,
+      11,
+      22
+    ],
+    [
+      8,
+      7,
+      3,
+      2,
+      4,
+      13,
+      51,
+      21
+    ],
+    [
+      4,
+      2,
+      4,
+      1,
+      2,
+      9,
+      11,
+      83
+    ]
+  ],
+  "nama_kelas": [
+    "Bandeng",
+    "Senangin",
+    "Gulamah",
+    "Gulama Putih",
+    "Nila Mozambik",
+    "Nila",
+    "Kembung",
+    "Biji Nangka"
+  ],
+  "feature_importance": {
+    "nama_fitur": [
+      "Mean R",
+      "Mean G",
+      "Mean B",
+      "Mean H",
+      "Mean S",
+      "Mean V"
+    ],
+    "nilai": [
+      0.158164,
+      0.144199,
+      0.153343,
+      0.21601,
+      0.18914,
+      0.139143
+    ]
+  },
+  "classification_report": {
+    "Bandeng": {
+      "precision": 62.4,
+      "recall": 63.0,
+      "f1_score": 62.7,
+      "support": 100
+    },
+    "Senangin": {
+      "precision": 36.0,
+      "recall": 37.5,
+      "f1_score": 36.7,
+      "support": 48
+    },
+    "Gulamah": {
+      "precision": 44.0,
+      "recall": 45.8,
+      "f1_score": 44.9,
+      "support": 48
+    },
+    "Gulama Putih": {
+      "precision": 42.1,
+      "recall": 16.0,
+      "f1_score": 23.2,
+      "support": 50
+    },
+    "Nila Mozambik": {
+      "precision": 64.3,
+      "recall": 54.5,
+      "f1_score": 59.0,
+      "support": 66
+    },
+    "Nila": {
+      "precision": 53.4,
+      "recall": 54.9,
+      "f1_score": 54.1,
+      "support": 113
+    },
+    "Kembung": {
+      "precision": 47.7,
+      "recall": 46.8,
+      "f1_score": 47.2,
+      "support": 109
+    },
+    "Biji Nangka": {
+      "precision": 55.0,
+      "recall": 71.6,
+      "f1_score": 62.2,
+      "support": 116
+    }
+  }
+}
