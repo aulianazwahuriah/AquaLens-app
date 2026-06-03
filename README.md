@@ -4,9 +4,7 @@
 
 ---
 
-## 🌐 Demo
-
-> Setelah deployment, isi bagian ini dengan URL Railway atau domain kamu.
+## 🌐 Link Demo
 
 ```
 https://www.aqualens.my.id/
