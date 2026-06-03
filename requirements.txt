@@ -13,10 +13,10 @@ Werkzeug==3.0.3
 gunicorn==22.0.0
 
 # Machine learning
-scikit-learn==1.2.2
+scikit-learn==1.4.2
 
 # Pengolahan gambar
 opencv-python-headless==4.10.0.84
 
 # Manipulasi array
-numpy==1.24.3
+numpy==1.26.4
