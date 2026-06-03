@@ -191,7 +191,7 @@ Prasetyo, E., Suciati, N., Fatichah, C., Navastara, D. A., Arifin, A. Z., & Muñ
 | **Name** | Aulia Nazwa Huriah |
 | **NIM** | 301240010 |
 | **Education** | Teknik Informatika – Universitas Bale Bandung |
-| **LinkedIn** | www.linkedin.com/in/aulianazwahuriah |
+| **LinkedIn** | [linkedin.com/in/aulianazwahuriah](https://www.linkedin.com/in/aulianazwahuriah) |
 
 ---
 
