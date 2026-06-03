@@ -9,8 +9,7 @@
 > Setelah deployment, isi bagian ini dengan URL Railway atau domain kamu.
 
 ```
-https://your-app.railway.app
-https://aqualens.my.id   ← setelah domain dikonfigurasi
+https://www.aqualens.my.id/
 ```
 
 ---
@@ -194,7 +193,7 @@ Prasetyo, E., Suciati, N., Fatichah, C., Navastara, D. A., Arifin, A. Z., & Muñ
 | **Name** | Aulia Nazwa Huriah |
 | **NIM** | 301240010 |
 | **Education** | Teknik Informatika – Universitas Bale Bandung |
-| **LinkedIn** | [linkedin.com/in/username-kamu](#) |
+| **LinkedIn** | www.linkedin.com/in/aulianazwahuriah |
 
 ---
 
